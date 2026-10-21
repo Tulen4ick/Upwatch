@@ -1,0 +1,29 @@
+@host = http://localhost:8080
+
+GET {{host}}/healthz
+
+POST {{host}}/api/v1/monitors
+Content-Type: application/json
+
+{"name": "Example", "url": "https://example.com", "interval_seconds": 60}
+
+GET {{host}}/api/v1/monitors
+
+GET {{host}}/api/v1/monitors/1
+
+PUT {{host}}/api/v1/monitors/1
+Content-Type: application/json
+
+{"name": "Renamed", "url": "https://example.org", "interval_seconds": 120, "timeout_seconds": 15, "enabled": false}
+
+POST {{host}}/api/v1/monitors
+Content-Type: application/json
+
+{"name": "", "url": "example.com", "interval_seconds": 5}
+
+POST {{host}}/api/v1/monitors
+Content-Type: application/json
+
+{"name": "x", "url": "https://example.com", "interval_seconds": 60, "color": "red"}
+
+DELETE {{host}}/api/v1/monitors/1

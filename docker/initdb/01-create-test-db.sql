@@ -1,0 +1,1 @@
+CREATE DATABASE upwatch_test OWNER upwatch;
