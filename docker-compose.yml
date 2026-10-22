@@ -7,7 +7,7 @@ services:
       POSTGRES_PASSWORD: upwatch
       POSTGRES_DB: upwatch
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
       - ./docker/initdb:/docker-entrypoint-initdb.d:ro
