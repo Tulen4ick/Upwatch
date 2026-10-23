@@ -1,29 +1,85 @@
 @host = http://localhost:8080
+@api = {{host}}/api/v1
 
+### 1. Health check -> 200 {"status":"ok"}
 GET {{host}}/healthz
 
-POST {{host}}/api/v1/monitors
+### 2. Список на пустой базе -> 200 []
+GET {{api}}/monitors
+
+### 3. Создать -> 201, timeout_seconds=10, enabled=true по умолчанию
+# @name create
+POST {{api}}/monitors
 Content-Type: application/json
 
-{"name": "Example", "url": "https://example.com", "interval_seconds": 60}
+{
+  "name": "Example",
+  "url": "https://example.com",
+  "interval_seconds": 60
+}
 
-GET {{host}}/api/v1/monitors
+### 4. Список -> 200, один монитор
+GET {{api}}/monitors
 
-GET {{host}}/api/v1/monitors/1
+### 5. Один монитор -> 200
+GET {{api}}/monitors/{{create.response.body.$.id}}
 
-PUT {{host}}/api/v1/monitors/1
+### 6. Несуществующий id -> 404
+GET {{api}}/monitors/999999
+
+### 7. Некорректный id -> 400
+GET {{api}}/monitors/abc
+
+### 8. Полное обновление -> 200, created_at прежний, updated_at новее
+PUT {{api}}/monitors/{{create.response.body.$.id}}
 Content-Type: application/json
 
-{"name": "Renamed", "url": "https://example.org", "interval_seconds": 120, "timeout_seconds": 15, "enabled": false}
+{
+  "name": "Example (renamed)",
+  "url": "https://example.org/health",
+  "interval_seconds": 120,
+  "timeout_seconds": 15,
+  "enabled": false
+}
 
-POST {{host}}/api/v1/monitors
+### 9. Ошибка валидации -> 422, fields: name, url, interval_seconds
+POST {{api}}/monitors
 Content-Type: application/json
 
-{"name": "", "url": "example.com", "interval_seconds": 5}
+{
+  "name": "",
+  "url": "example.com",
+  "interval_seconds": 5
+}
 
-POST {{host}}/api/v1/monitors
+### 10. Неизвестное поле -> 400, unknown field "color"
+POST {{api}}/monitors
 Content-Type: application/json
 
-{"name": "x", "url": "https://example.com", "interval_seconds": 60, "color": "red"}
+{
+  "name": "x",
+  "url": "https://example.com",
+  "interval_seconds": 60,
+  "color": "red"
+}
 
-DELETE {{host}}/api/v1/monitors/1
+### 11. Пустое тело -> 400
+POST {{api}}/monitors
+Content-Type: application/json
+
+### 12. Неподдерживаемый метод -> 405
+PATCH {{api}}/monitors/{{create.response.body.$.id}}
+Content-Type: application/json
+
+{
+  "name": "x"
+}
+
+### 13. Удалить -> 204, пустое тело
+DELETE {{api}}/monitors/{{create.response.body.$.id}}
+
+### 14. Удалить ещё раз -> 404
+DELETE {{api}}/monitors/{{create.response.body.$.id}}
+
+### 15. Список после удаления -> 200 []
+GET {{api}}/monitors
