@@ -29,6 +29,12 @@ type Server struct {
 func NewServer(store MonitorStore, db Pinger, log *slog.Logger) http.Handler {
 	s := &Server{store: store, db: db, log: log}
 	mux := http.NewServeMux()
+	mux.HandleFunc("GET /healthz", s.handleHealth)
+	mux.HandleFunc("POST /api/v1/monitors", s.handleCreateMonitor)
+	mux.HandleFunc("GET /api/v1/monitors", s.handleListMonitors)
+	mux.HandleFunc("GET /api/v1/monitors/{id}", s.handleGetMonitor)
+	mux.HandleFunc("PUT /api/v1/monitors/{id}", s.handleUpdateMonitor)
+	mux.HandleFunc("DELETE /api/v1/monitors/{id}", s.handleDeleteMonitor)
 
 	return s.logRequests(s.recoverPanic(mux))
 }
