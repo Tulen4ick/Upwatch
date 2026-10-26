@@ -23,7 +23,7 @@ func newTestRepo(t *testing.T) *MonitorRepo {
 	}
 	t.Cleanup(pool.Close)
 
-	if _, err := pool.Exec(ctx, `TRUNCATE monitors RESTART IDENTITY`); err != nil {
+	if _, err := pool.Exec(ctx, `TRUNCATE monitors RESTART IDENTITY CASCADE`); err != nil {
 		t.Fatalf("truncate: %v (миграции применены к тестовой БД?)", err)
 	}
 	return NewMonitorRepo(pool)
