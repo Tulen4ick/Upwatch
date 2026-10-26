@@ -7,9 +7,10 @@ import (
 	"testing"
 
 	"github.com/Tulen4ick/Upwatch/internal/monitor"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-func newTestRepo(t *testing.T) *MonitorRepo {
+func newTestPool(t *testing.T) *pgxpool.Pool {
 	t.Helper()
 	dsn := os.Getenv("UPWATCH_TEST_DATABASE_URL")
 	if dsn == "" {
@@ -26,7 +27,12 @@ func newTestRepo(t *testing.T) *MonitorRepo {
 	if _, err := pool.Exec(ctx, `TRUNCATE monitors RESTART IDENTITY CASCADE`); err != nil {
 		t.Fatalf("truncate: %v (миграции применены к тестовой БД?)", err)
 	}
-	return NewMonitorRepo(pool)
+	return pool
+}
+
+func newTestRepo(t *testing.T) *MonitorRepo {
+	t.Helper()
+	return NewMonitorRepo(newTestPool(t))
 }
 
 func input(name string) monitor.Input {
